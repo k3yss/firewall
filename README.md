@@ -11,7 +11,7 @@ Implementation of software based firewall for linux based systems.
 
 Install the linux kernel headers
 ```
-$ sudo apt install linux-headers
+$ sudo apt-get install linux-headers-$(uname -r)
 ```
 **Build and run**
 ```shell
