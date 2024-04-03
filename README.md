@@ -16,6 +16,7 @@ $ sudo apt-get install linux-headers-$(uname -r)
 **Build and run**
 ```shell
 $ git clone https://github.com/k3ys/firewall && cd firewall
+$ cd src
 $ make
 $ sudo insmod firewall.ko ip_addr_rule=<desired-ip>
 ```
