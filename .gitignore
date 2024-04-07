@@ -63,3 +63,6 @@ devenv.local.nix
 
 # vscode
 .vscode
+
+# Python virtual environment
+venv
