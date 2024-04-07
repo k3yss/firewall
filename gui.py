@@ -15,7 +15,7 @@ AshGray="#C0C0C0"
 FONT_NAME = "Courier"
 
 def load_module():
-    run_command("insmod ./src/firewall.ko")
+    run_command("insmod ./src/firewall.ko ip_addr_rule=127.0.0.1")
 
 def remove_module():
     run_command("rmmod ./src/firewall.ko")
@@ -29,11 +29,15 @@ def show_log():
     result = subprocess.run(['dmesg'], capture_output=True, text=True)
     dmesg_lines = result.stdout.splitlines()[-10:]  # Get the last 10 lines of dmesg output
     dmesg_output = "\n".join(dmesg_lines)
-    dmesg_text.insert(tk.END, f"{dt.now()}:")
+    dmesg_text.insert(tk.END, f"{dt.now().strftime('%H:%M:%S')}:")
     dmesg_text.insert(tk.END, dmesg_output)
 
 def enter_run(event):
     run_command()
+    
+def select_test(event):
+    test = clicked.get()
+    return test
     
     
 def run_command(command=""):
@@ -77,8 +81,23 @@ def run_command(command=""):
     #         terminal_output.insert(tk.END, f"{line}")
     #         terminal_output.see(tk.END)  # Scroll to the end to show the latest output
     # command_entry.delete(0, "end")
-
-
+    
+    
+def run_test():
+    type = clicked.get()
+    hostname = ip_test_entry.get("1.0", "end-1c")
+    if type == "ping":   
+        cmd = 'ping -c 5 ' + hostname
+    elif type == "wget":
+        cmd = 'wget ' + hostname
+        
+    response = subprocess.getoutput(cmd)
+    op_text.delete(1.0, tk.END)
+    op_text.insert(tk.END, f"Time : {dt.now().strftime('%H:%M:%S')}:","blue")
+    op_text.insert(tk.END, f"\n{os.getcwd()}> $ ","red")
+    op_text.insert(tk.END, f"{cmd}\n","green")
+    op_text.insert(tk.END, response)
+    
 
 window = Tk()
 window.title("Netfilter Firewall")
@@ -110,33 +129,34 @@ second_frame.config(padx=50, pady=20, bg=Glaucous)
 my_canvas.create_window((0,0),window=second_frame,anchor="ne")
 
 
-
-# Label
 title = Label(second_frame,text="Netfilter Firewall", font=(FONT_NAME, 25, "bold"), bg=Glaucous, fg=GREEN)
 title.pack(pady=10)
+
+
 ip_label = Label(second_frame, text="Enter IP addresses:",font=("Arial", 12, "bold"), bg=Glaucous, fg=BLACK)
 ip_label.pack()
-
-
-# Entry
 ip_text = Text(second_frame, height = 1, width = 30, bg = "light cyan")
+ip_text.insert("1.0", "142.250.4.103")
 ip_text.pack()
 
-# Buttons
-load_but = Button(second_frame,text="Load Module", width=12, command=load_module)
-load_but.pack(pady=10)
-remove_but = Button(second_frame,text="Remove Module", width=12,command=remove_module)
-remove_but.pack(pady=10)
+
+kernel_frame = Frame(second_frame)
+kernel_frame.config(bg=Glaucous)
+kernel_frame.pack()
+
+load_but = Button(kernel_frame,text="Load Module", width=15, command=load_module)
+load_but.grid(row=0,column=0,padx=5,pady=10)
+remove_but = Button(kernel_frame,text="Remove Module", width=15,command=remove_module)
+remove_but.grid(row=0,column=1,padx=5,pady=10)
 # list_but = Button(second_frame,text="List Module", width=12, command=list_module)
 # list_but.pack(pady=10)
-log_but = Button(second_frame,text="Show log", width=12,command=show_log)
-log_but.pack(pady=10)
 
-refresh_button = Button(second_frame, text="Refresh dmesg Logs", command=show_log)
-refresh_button.pack(pady=10)
+refresh_button = Button(kernel_frame, text="Refresh dmesg logs", command=show_log)
+refresh_button.grid(row=0,column=3,padx=5,pady=10)
 
 dmesg_text = Text(second_frame, height=15, width=80,bg = AshGray)
 dmesg_text.pack(pady=10)
+refresh_button.invoke()
 
 # # Terminal Section
 # command_entry = Entry(second_frame, width=50,bg = AshGray)
@@ -152,6 +172,32 @@ dmesg_text.pack(pady=10)
 # terminal_output.tag_configure("blue", foreground="blue")
 # terminal_output.tag_configure("red", foreground="red")
 # terminal_output.pack(pady=10)
+
+options = ["ping", "wget"]
+
+clicked = StringVar()
+clicked.set(options[0])
+
+run_frame = Frame(second_frame)
+run_frame.config(bg=Glaucous)
+run_frame.pack()
+
+drop = OptionMenu(run_frame,clicked,*options,command=select_test)
+drop.config(width = 12)
+drop.grid(row=0,column=0,padx=5,pady=10)
+
+ip_test_entry = Text(run_frame, height = 1, width = 30, bg = "light cyan")
+ip_test_entry.insert("1.0", "142.250.4.103")
+ip_test_entry.grid(row=0,column=1,padx=5,pady=10)
+
+test_button = Button(run_frame,text = "Run Test", width = 12, command = run_test)
+test_button.grid(row=0,column=2,padx=5,pady=10)
+
+op_text = Text(second_frame, height=15, width=80,bg = AshGray)
+op_text.tag_configure("green", foreground="green")
+op_text.tag_configure("blue", foreground="blue")
+op_text.tag_configure("red", foreground="red")
+op_text.pack(pady=10)
 
 
 exit = Button(second_frame, text = "Exit", width = 12, command = window.destroy)
