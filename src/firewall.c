@@ -97,7 +97,7 @@ static unsigned int nf_blockicmppkt_handler(void *priv, struct sk_buff *skb, con
   }
   else if (iph->protocol == IPPROTO_ICMP)
   {
-    printk(KERN_INFO "Drop ICMP packet \n");
+    printk(KERN_ERR "[Firewall] Drop ICMP packet\n");
     return NF_DROP; // drop TCP packet
   }
   return NF_ACCEPT;
@@ -112,7 +112,7 @@ static unsigned int nf_blockicmppkt_handler(void *priv, struct sk_buff *skb, con
  * @return 0 on success, a negative error code on failure.
  */
 static int __init nf_minifirewall_init(void) {
-  printk(KERN_INFO "Starting the firewall\n");
+  printk(KERN_WARNING "[Firewall] Starting the firewall ...\n");
 	nf_blockicmppkt_ops = (struct nf_hook_ops*)kcalloc(1,  sizeof(struct nf_hook_ops), GFP_KERNEL);
 	if (nf_blockicmppkt_ops != NULL) {
 		nf_blockicmppkt_ops->hook = (nf_hookfn*)nf_blockicmppkt_handler;
@@ -143,6 +143,7 @@ static int __init nf_minifirewall_init(void) {
  * It performs any necessary cleanup operations before the module is removed.
  */
 static void __exit nf_minifirewall_exit(void) {
+	printk(KERN_WARNING "[Firewall] Exiting the firewall ...\n");
 	if(nf_blockicmppkt_ops != NULL) {
 		nf_unregister_net_hook(&init_net, nf_blockicmppkt_ops);
 		kfree(nf_blockicmppkt_ops);
@@ -151,7 +152,6 @@ static void __exit nf_minifirewall_exit(void) {
 		nf_unregister_net_hook(&init_net, nf_blockipaddr_ops);
 		kfree(nf_blockipaddr_ops);
 	}
-	printk(KERN_INFO "Exiting the firewall\n");
 }
 
 
