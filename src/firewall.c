@@ -112,7 +112,7 @@ static unsigned int nf_blockicmppkt_handler(void *priv, struct sk_buff *skb, con
  * @return 0 on success, a negative error code on failure.
  */
 static int __init nf_minifirewall_init(void) {
-  printk(KERN_INFO "Starting the firewall");
+  printk(KERN_INFO "Starting the firewall\n");
 	nf_blockicmppkt_ops = (struct nf_hook_ops*)kcalloc(1,  sizeof(struct nf_hook_ops), GFP_KERNEL);
 	if (nf_blockicmppkt_ops != NULL) {
 		nf_blockicmppkt_ops->hook = (nf_hookfn*)nf_blockicmppkt_handler;
@@ -151,7 +151,7 @@ static void __exit nf_minifirewall_exit(void) {
 		nf_unregister_net_hook(&init_net, nf_blockipaddr_ops);
 		kfree(nf_blockipaddr_ops);
 	}
-	printk(KERN_INFO "Exit");
+	printk(KERN_INFO "Exiting the firewall\n");
 }
 
 
