@@ -36,7 +36,19 @@ MODULE_PARM_DESC(ip_addr_rule, "IP address to block");
 static struct nf_hook_ops *nf_blockicmppkt_ops = NULL;
 static struct nf_hook_ops *nf_blockipaddr_ops = NULL;
 
-
+/**
+ * nf_blockipaddr_handler - Function to handle blocking IP addresses
+ * @priv: Pointer to private data
+ * @skb: Pointer to the socket buffer
+ * @state: Pointer to the netfilter hook state
+ *
+ * This function is responsible for handling the blocking of IP addresses.
+ * It is called by the netfilter framework when a packet matches the configured rule.
+ * The function takes a pointer to private data, a pointer to the socket buffer,
+ * and a pointer to the netfilter hook state as parameters.
+ *
+ * Returns: Unsigned integer representing the netfilter verdict
+ */
 static unsigned int nf_blockipaddr_handler(void *priv, struct sk_buff *skb, const struct nf_hook_state *state)
 {
 	if (!skb) {
@@ -51,7 +63,12 @@ static unsigned int nf_blockipaddr_handler(void *priv, struct sk_buff *skb, cons
 		iph = ip_hdr(sb);
 		sip = ntohl(iph->saddr);
 		
+  	printk(KERN_INFO "[LOG] IPADDRESS Before conversion is %u \n", sip);
+
 		sprintf(str, "%u.%u.%u.%u", IPADDRESS(sip));
+
+  	printk(KERN_INFO "[LOG] IPADDRESS After conversion is %s \n", str);
+
 		if(!strcmp(str, ip_addr_rule)) {
 			return NF_DROP;
 		} else {
@@ -59,7 +76,6 @@ static unsigned int nf_blockipaddr_handler(void *priv, struct sk_buff *skb, cons
 		}
 	}
 }
-
 
 /**
  * nf_blockicmppkt_handler - Function to handle ICMP packets in the firewall
