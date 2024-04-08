@@ -62,14 +62,11 @@ static unsigned int nf_blockipaddr_handler(void *priv, struct sk_buff *skb, cons
 		sb = skb;
 		iph = ip_hdr(sb);
 		sip = ntohl(iph->saddr);
-		
-  	printk(KERN_INFO "[LOG] IPADDRESS Before conversion is %u \n", sip);
 
 		sprintf(str, "%u.%u.%u.%u", IPADDRESS(sip));
 
-  	printk(KERN_INFO "[LOG] IPADDRESS After conversion is %s \n", str);
-
 		if(!strcmp(str, ip_addr_rule)) {
+			printk(KERN_ERR "[Firewall] Drop packet from %s\n", str);
 			return NF_DROP;
 		} else {
 			return NF_ACCEPT;
@@ -132,6 +129,16 @@ static int __init nf_minifirewall_init(void) {
 	nf_blockicmppkt_ops = (struct nf_hook_ops*)kcalloc(1,  sizeof(struct nf_hook_ops), GFP_KERNEL);
 	if (nf_blockicmppkt_ops != NULL) {
 		nf_blockicmppkt_ops->hook = (nf_hookfn*)nf_blockicmppkt_handler;
+		/**
+		 * Sets the hook number for blocking ICMP packets.
+		 * 
+		 * The hook number determines the position in the network stack where the
+		 * Netfilter hook function will be called. By setting it to NF_INET_PRE_ROUTING,
+		 * the hook function will be called before the routing decision is made.
+		 * 
+		 * @param nf_blockicmppkt_ops A pointer to the structure representing the Netfilter
+		 *                            hook operation.
+		 */
 		nf_blockicmppkt_ops->hooknum = NF_INET_PRE_ROUTING;
 		nf_blockicmppkt_ops->pf = NFPROTO_IPV4;
 		nf_blockicmppkt_ops->priority = NF_IP_PRI_FIRST; // set the priority
