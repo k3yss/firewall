@@ -1,0 +1,18 @@
+{
+  "files.associations": {
+    "*.sage": "python",
+    "kernel.h": "c",
+    "in.h": "c",
+    "init.h": "c",
+    "ip.h": "c",
+    "module.h": "c",
+    "skbuff.h": "c",
+    "bug.h": "c",
+    "time.h": "c",
+    "compiler.h": "c",
+    "linkage.h": "c",
+    "export.h": "c",
+    "stringify.h": "c",
+    "compiler_types.h": "c"
+  }
+}

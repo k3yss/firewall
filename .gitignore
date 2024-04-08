@@ -61,11 +61,17 @@ devenv.local.nix
 # pre-commit
 .pre-commit-config.yaml
 
-# vscode
-.vscode
-
 # Python virtual environment
 venv
 
 # when downloading wget files 
 src/index.html
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
+
+# pre-commit
+.pre-commit-config.yaml
